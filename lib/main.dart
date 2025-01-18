@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:food_delivery_getx/widget/bottom_nav.dart';
+import 'package:food_delivery_getx/pages/onboard_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      home: BottomNav(),
+      home: OnboardPage(),
     );
   }
 }
