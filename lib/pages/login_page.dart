@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:food_delivery_getx/pages/signup_page.dart';
+import 'package:food_delivery_getx/widget/bottom_nav.dart';
 import 'package:food_delivery_getx/widget/widget_support.dart';
 
 class LoginPage extends StatefulWidget {
@@ -10,6 +12,27 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginState extends State<LoginPage> {
+  String password = '', email = '';
+
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController mailController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+
+  _loginProcess() async {
+    if (password != '') {
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.green, content: Text('Login Successfully!', style: WidgetSupport.boldTextStyle(color: Colors.black))));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BottomNav()));
+      } on FirebaseException catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? "An error has ocurred!", style: WidgetSupport.boldTextStyle(color: Colors.black))));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,44 +69,64 @@ class _LoginState extends State<LoginPage> {
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height / 2,
                     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-                    child: Column(
-                      children: [
-                        Text('Login', style: WidgetSupport.boldTextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 40),
-                        TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Email',
-                            hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
-                            prefixIcon: Icon(Icons.email_outlined),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          Text('Login', style: WidgetSupport.boldTextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 40),
+                          TextFormField(
+                            controller: mailController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) return 'Please Enter Email';
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              hintText: 'Email',
+                              hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+                              prefixIcon: Icon(Icons.email_outlined),
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 30),
-                        TextField(
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            hintText: 'Password',
-                            hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
-                            prefixIcon: Icon(Icons.password_outlined),
+                          SizedBox(height: 30),
+                          TextFormField(
+                            obscureText: true,
+                            controller: passwordController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) return 'Please Enter Password';
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              hintText: 'Password',
+                              hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+                              prefixIcon: Icon(Icons.password_outlined),
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 20),
-                        Container(
-                          alignment: Alignment.centerRight,
-                          child: Text('Forgot Password?', style: WidgetSupport.boldTextStyle(color: Colors.black87, fontSize: 15)),
-                        ),
-                        SizedBox(height: 70),
-                        Material(
-                          elevation: 5,
-                          borderRadius: BorderRadius.circular(25),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            width: MediaQuery.of(context).size.width / 3,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(color: Color(0xffff5722), borderRadius: BorderRadius.circular(25)),
-                            child: Text('LOGIN', style: WidgetSupport.boldTextStyle(color: Colors.white)),
+                          SizedBox(height: 20),
+                          Container(
+                            alignment: Alignment.centerRight,
+                            child: Text('Forgot Password?', style: WidgetSupport.boldTextStyle(color: Colors.black87, fontSize: 15)),
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 70),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(elevation: 5, backgroundColor: Color(0xffff5722)),
+                            onPressed: () {
+                              if (_formKey.currentState?.validate() == true) {
+                                setState(() {
+                                  email = mailController.text;
+                                  password = passwordController.text;
+                                });
+                              }
+
+                              _loginProcess();
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              width: MediaQuery.of(context).size.width / 3,
+                              child: Text('LOGIN', style: WidgetSupport.boldTextStyle(color: Colors.white)),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

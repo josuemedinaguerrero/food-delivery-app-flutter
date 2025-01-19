@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:food_delivery_getx/pages/signup_page.dart';
+import 'package:food_delivery_getx/pages/login_page.dart';
 import "package:food_delivery_getx/widget/content_model.dart";
 import 'package:food_delivery_getx/widget/widget_support.dart';
 
@@ -65,7 +65,7 @@ class _OnboardPageState extends State<OnboardPage> {
             ),
             GestureDetector(
               onTap: () {
-                if (currentIndex == contents.length - 1) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignupPage()));
+                if (currentIndex == contents.length - 1) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
                 _pageController.nextPage(duration: Duration(milliseconds: 300), curve: Curves.linear);
               },
               child: Container(

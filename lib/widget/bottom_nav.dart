@@ -39,7 +39,7 @@ class _BottomNavState extends State<BottomNav> {
       body: pages[currentTabIndex],
       bottomNavigationBar: CurvedNavigationBar(
         height: 65,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         color: Colors.black,
         animationDuration: Duration(milliseconds: 500),
         items: [
