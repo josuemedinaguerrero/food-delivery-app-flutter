@@ -47,3 +47,4 @@ app.*.map.json
 google-services.json
 google-services.xml
 firebase
+firebase_options.dart

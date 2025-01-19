@@ -29,7 +29,9 @@ class _LoginState extends State<SignupPage> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.green, content: Text('Registered Successfully', style: WidgetSupport.boldTextStyle(color: Colors.black))));
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BottomNav()));
       } on FirebaseException catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? "An error has ocurred!", style: WidgetSupport.boldTextStyle(color: Colors.black))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Colors.redAccent, content: Text(e.message ?? "An error has ocurred!", style: WidgetSupport.boldTextStyle(color: Colors.black))),
+        );
       }
     }
   }
@@ -80,7 +82,7 @@ class _LoginState extends State<SignupPage> {
                             },
                             decoration: InputDecoration(
                               hintText: 'Name',
-                              hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+                              hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w400),
                               prefixIcon: Icon(Icons.person_outline),
                             ),
                           ),
@@ -93,7 +95,7 @@ class _LoginState extends State<SignupPage> {
                             },
                             decoration: InputDecoration(
                               hintText: 'Email',
-                              hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+                              hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w400),
                               prefixIcon: Icon(Icons.email_outlined),
                             ),
                           ),
@@ -107,7 +109,7 @@ class _LoginState extends State<SignupPage> {
                             },
                             decoration: InputDecoration(
                               hintText: 'Password',
-                              hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+                              hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w400),
                               prefixIcon: Icon(Icons.password_outlined),
                             ),
                           ),

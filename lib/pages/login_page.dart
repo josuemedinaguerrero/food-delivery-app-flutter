@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:food_delivery_getx/pages/forgot_password.dart';
 import 'package:food_delivery_getx/pages/signup_page.dart';
 import 'package:food_delivery_getx/widget/bottom_nav.dart';
 import 'package:food_delivery_getx/widget/widget_support.dart';
@@ -14,10 +15,10 @@ class LoginPage extends StatefulWidget {
 class _LoginState extends State<LoginPage> {
   String password = '', email = '';
 
+  final _formKey = GlobalKey<FormState>();
+
   TextEditingController passwordController = TextEditingController();
   TextEditingController mailController = TextEditingController();
-
-  final _formKey = GlobalKey<FormState>();
 
   _loginProcess() async {
     if (password != '') {
@@ -28,7 +29,9 @@ class _LoginState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.green, content: Text('Login Successfully!', style: WidgetSupport.boldTextStyle(color: Colors.black))));
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BottomNav()));
       } on FirebaseException catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? "An error has ocurred!", style: WidgetSupport.boldTextStyle(color: Colors.black))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Colors.redAccent, content: Text(e.message ?? "An error has ocurred!", style: WidgetSupport.boldTextStyle(color: Colors.black))),
+        );
       }
     }
   }
@@ -83,7 +86,7 @@ class _LoginState extends State<LoginPage> {
                             },
                             decoration: InputDecoration(
                               hintText: 'Email',
-                              hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+                              hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w400),
                               prefixIcon: Icon(Icons.email_outlined),
                             ),
                           ),
@@ -97,14 +100,19 @@ class _LoginState extends State<LoginPage> {
                             },
                             decoration: InputDecoration(
                               hintText: 'Password',
-                              hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+                              hintStyle: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.w400),
                               prefixIcon: Icon(Icons.password_outlined),
                             ),
                           ),
                           SizedBox(height: 20),
                           Container(
                             alignment: Alignment.centerRight,
-                            child: Text('Forgot Password?', style: WidgetSupport.boldTextStyle(color: Colors.black87, fontSize: 15)),
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPassword()));
+                              },
+                              child: Text('Forgot Password?', style: WidgetSupport.boldTextStyle(color: Colors.black87, fontSize: 15)),
+                            ),
                           ),
                           SizedBox(height: 70),
                           ElevatedButton(
