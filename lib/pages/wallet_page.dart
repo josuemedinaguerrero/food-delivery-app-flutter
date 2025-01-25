@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:food_delivery_getx/widget/widget_support.dart';
+import 'package:flutter_paypal_payment/flutter_paypal_payment.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:developer';
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key});
@@ -59,7 +64,58 @@ class _WalletPageState extends State<WalletPage> {
                   ),
                   SizedBox(height: 60),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) => PaypalCheckoutView(
+                          sandboxMode: true,
+                          clientId: dotenv.get('CLIENT_ID_PAYPAL'),
+                          secretKey: dotenv.get('CLIENT_SECRET_PAYPAL'),
+                          transactions: const [
+                            {
+                              "amount": {
+                                "total": '100',
+                                "currency": "USD",
+                                "details": {"subtotal": '100', "shipping": '0', "shipping_discount": 0}
+                              },
+                              "description": "The payment transaction description.",
+                              "item_list": {
+                                "items": [
+                                  {"name": "Apple", "quantity": 4, "price": '10', "currency": "USD"},
+                                  {"name": "Pineapple", "quantity": 5, "price": '12', "currency": "USD"}
+                                ],
+                              }
+                            }
+                          ],
+                          note: "Contact us for any questions on your order.",
+                          onSuccess: (Map params) async {
+                            log("onSuccess: ${jsonEncode(params)}");
+                            Navigator.pop(context);
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                content: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.check_circle, color: Colors.green),
+                                    SizedBox(width: 10),
+                                    Text("Payment Successful"),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          onError: (error) {
+                            log("onError: ${jsonEncode(error)}");
+                            log("ERROR: ${error['data']['details'][0]['issue']}");
+                            Navigator.pop(context);
+                          },
+                          onCancel: () {
+                            log('cancelled:');
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ));
+                    },
                     style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF008080), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                     child: Container(
                       width: double.infinity,
@@ -77,7 +133,7 @@ class _WalletPageState extends State<WalletPage> {
     );
   }
 
-  _itemAmount(double amount) {
+  _itemAmount(int amount) {
     return Container(
       padding: EdgeInsets.all(5),
       decoration: BoxDecoration(border: Border.all(color: Color(0xFFE9E2E2)), borderRadius: BorderRadius.circular(5)),
