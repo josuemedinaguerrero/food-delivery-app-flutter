@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:food_delivery_getx/pages/details_page.dart';
+import 'package:food_delivery_getx/service/database.dart';
 import 'package:food_delivery_getx/widget/widget_support.dart';
 
 class HomePage extends StatefulWidget {
@@ -10,23 +12,40 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<String> images = [
+    "images/ice-cream.png",
+    "images/pizza.png",
+    "images/salad.png",
+    "images/burger.png",
+  ];
+
+  final List<String> items = ['Ice-cream', 'Pizza', 'Salad', 'Burger'];
+
+  Stream? foodItems;
   int selectedCategory = 0;
 
+  _getItem() async {
+    foodItems = DatabaseMethods().getFoodItem('Burger');
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    _getItem();
+
+    super.initState();
+  }
+
   void _selectCategory(int index) {
-    setState(() {
-      selectedCategory = index;
-    });
+    selectedCategory = index;
+
+    foodItems = DatabaseMethods().getFoodItem(items[index]);
+
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    List<String> images = [
-      "images/ice-cream.png",
-      "images/pizza.png",
-      "images/salad.png",
-      "images/burger.png",
-    ];
-
     return Scaffold(
       body: Container(
         margin: EdgeInsets.only(top: 50, left: 25, right: 0),
@@ -57,40 +76,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             SizedBox(height: 20),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: List.generate(
-                  3,
-                  (index) => GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => DetailsPage()));
-                    },
-                    child: Container(
-                      margin: EdgeInsets.all(10),
-                      child: Material(
-                        elevation: 5,
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          padding: EdgeInsets.all(15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Image.asset('images/salad2.png', height: 200, width: 200, fit: BoxFit.cover),
-                              Text('Veggie Taco Hash', style: WidgetSupport.boldTextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                              SizedBox(height: 3),
-                              Text('Fresh and Healthy', style: WidgetSupport.boldTextStyle(color: Colors.black54, fontSize: 15)),
-                              SizedBox(height: 3),
-                              Text('\$25', style: WidgetSupport.boldTextStyle(color: Colors.black, fontSize: 17)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            SizedBox(height: 300, child: _allItems()),
             SizedBox(height: 20),
             Container(
               margin: EdgeInsets.only(right: 25),
@@ -156,5 +142,54 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  Widget _allItems() {
+    return StreamBuilder(
+        stream: foodItems,
+        builder: (context, snapshot) {
+          return snapshot.hasData
+              ? ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: snapshot.data.docs.length,
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    DocumentSnapshot ds = snapshot.data.docs[index];
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => DetailsPage()));
+                      },
+                      child: Container(
+                        margin: EdgeInsets.all(10),
+                        child: Material(
+                          elevation: 5,
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            padding: EdgeInsets.all(15),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image.network(ds['Image'], height: 170, width: 150, fit: BoxFit.cover),
+                                ),
+                                SizedBox(height: 5),
+                                Text(ds['Name'], style: WidgetSupport.boldTextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                                SizedBox(height: 3),
+                                Text(ds['Detail'], style: WidgetSupport.boldTextStyle(color: Colors.black54, fontSize: 15)),
+                                SizedBox(height: 3),
+                                Text('\$${ds['Price']}', style: WidgetSupport.boldTextStyle(color: Colors.black, fontSize: 17)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                )
+              : CircularProgressIndicator();
+        });
   }
 }

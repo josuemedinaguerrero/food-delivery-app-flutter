@@ -49,7 +49,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 child: Column(
                   children: [
                     Text("Let's start with\nAdmin!", style: TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 30.0),
+                    SizedBox(height: 30),
                     Material(
                       elevation: 3.0,
                       borderRadius: BorderRadius.circular(20),
@@ -74,7 +74,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 40.0),
+                            SizedBox(height: 40),
                             Container(
                               padding: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
                               margin: EdgeInsets.symmetric(horizontal: 20.0),
@@ -90,7 +90,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 40.0),
+                            SizedBox(height: 40),
                             GestureDetector(
                               onTap: () {
                                 _loginAdmin();

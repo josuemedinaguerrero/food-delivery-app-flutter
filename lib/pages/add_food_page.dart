@@ -25,7 +25,8 @@ class _AddFoodPageState extends State<AddFoodPage> {
   Future _getImage() async {
     var image = await _picker.pickImage(source: ImageSource.gallery);
 
-    selectedImage = File(image!.path);
+    if (image == null) return;
+    selectedImage = File(image.path);
     setState(() {});
   }
 
@@ -34,8 +35,8 @@ class _AddFoodPageState extends State<AddFoodPage> {
       const urlImg =
           'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.instabug.com%2Fblog%2F12-essential-tools-for-the-flutter-mobile-app-developer&psig=AOvVaw3PHkaqnK2M66QMLUWk6p7W&ust=1738586273442000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCOCk9t6ApYsDFQAAAAAdAAAAABAE';
 
-      Map<String, dynamic> addItem = {"Image": urlImg, "Name": nameController.text, "Price": priceController.text, "Detail": detailsController.text};
-      await DatabaseMethods().addFoodItem(addItem, 'items').then((value) {
+      Map<String, dynamic> addItem = {"Image": urlImg, "Name": nameController.text, "Price": priceController.text, "Detail": detailsController.text, "Type": value};
+      await DatabaseMethods().addFoodItem(addItem).then((value) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.green, content: Text("Food Item has been added Successfully", style: TextStyle(fontSize: 18.0))));
       });
