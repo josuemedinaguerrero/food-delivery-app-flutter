@@ -1,15 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:food_delivery_getx/service/database.dart';
+import 'package:food_delivery_getx/service/shared_preferences.dart';
 import 'package:food_delivery_getx/widget/widget_support.dart';
 
 class DetailsPage extends StatefulWidget {
-  const DetailsPage({super.key});
+  final String name, image, detail, price;
+
+  const DetailsPage({super.key, required this.detail, required this.image, required this.name, required this.price});
 
   @override
   State<DetailsPage> createState() => _DetailsPageState();
 }
 
 class _DetailsPageState extends State<DetailsPage> {
-  int a = 1;
+  int a = 1, total = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    total = int.parse(widget.price);
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +37,8 @@ class _DetailsPageState extends State<DetailsPage> {
                 Navigator.pop(context);
               },
             ),
-            Image.asset("images/salad2.png"),
+            SizedBox(height: 15),
+            Image.network(widget.image),
             SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -34,8 +47,7 @@ class _DetailsPageState extends State<DetailsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Mediterranean', style: WidgetSupport.boldTextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                      Text('Chickpea Salad', style: WidgetSupport.boldTextStyle(color: Colors.black)),
+                      Text(widget.name, style: WidgetSupport.boldTextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -44,6 +56,7 @@ class _DetailsPageState extends State<DetailsPage> {
                     setState(() {
                       if (a > 1) {
                         a--;
+                        total = total - int.parse(widget.price);
                       }
                     });
                   },
@@ -57,9 +70,10 @@ class _DetailsPageState extends State<DetailsPage> {
                 SizedBox(width: 20),
                 GestureDetector(
                   onTap: () {
-                    setState(() {
-                      a++;
-                    });
+                    a++;
+                    total = total + int.parse(widget.price);
+
+                    setState(() {});
                   },
                   child: Container(
                     decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(8)),
@@ -69,10 +83,7 @@ class _DetailsPageState extends State<DetailsPage> {
               ],
             ),
             SizedBox(height: 15),
-            Text(
-              'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut purus vitae, tincidunt sapien. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nib',
-              style: WidgetSupport.boldTextStyle(color: Colors.black38, fontSize: 15),
-            ),
+            Text(widget.detail, style: WidgetSupport.boldTextStyle(color: Colors.black38, fontSize: 15)),
             SizedBox(height: 15),
             Row(
               children: [
@@ -94,22 +105,39 @@ class _DetailsPageState extends State<DetailsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("Total Price", style: WidgetSupport.boldTextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                      Text("\$28", style: WidgetSupport.boldTextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                      Text("\$$total", style: WidgetSupport.boldTextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                     ],
                   ),
-                  Container(
-                    padding: EdgeInsets.only(top: 7, bottom: 7, left: 20, right: 20),
-                    decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10)),
-                    child: Row(
-                      children: [
-                        Text('Add to cart', style: TextStyle(color: Colors.white)),
-                        SizedBox(width: 15),
-                        Container(
-                          padding: EdgeInsets.all(3),
-                          decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(8)),
-                          child: Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 20),
-                        ),
-                      ],
+                  GestureDetector(
+                    onTap: () async {
+                      final id = await SharedPreferencesHelpers().getUserId();
+                      Map<String, dynamic> addFoodToCart = {
+                        "Name": widget.name,
+                        "Quantity": a.toString(),
+                        "Total": total.toString(),
+                        "Image": widget.image,
+                      };
+
+                      await DatabaseMethods().addFoodToCart(addFoodToCart, id ?? '3187666501');
+
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.green, content: Text("Food Added to Cart!", style: TextStyle(fontSize: 18.0))));
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(top: 7, bottom: 7, left: 20, right: 20),
+                      decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10)),
+                      child: Row(
+                        children: [
+                          Text('Add to cart', style: TextStyle(color: Colors.white)),
+                          SizedBox(width: 15),
+                          Container(
+                            padding: EdgeInsets.all(3),
+                            decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(8)),
+                            child: Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 20),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
