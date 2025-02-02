@@ -40,6 +40,8 @@ dependencies:
   cloud_firestore: ^5.6.1
   flutter_paypal_payment: ^1.0.8
   flutter_dotenv: ^5.2.1
+  random_string: ^2.3.1
+  shared_preferences: ^2.4.0
 
 dev_dependencies:
   flutter_test:

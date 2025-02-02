@@ -1,8 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:food_delivery_getx/pages/login_page.dart';
+import 'package:food_delivery_getx/service/database.dart';
+import 'package:food_delivery_getx/service/shared_preferences.dart';
 import 'package:food_delivery_getx/widget/bottom_nav.dart';
 import 'package:food_delivery_getx/widget/widget_support.dart';
+import 'package:random_string/random_string.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -27,11 +30,35 @@ class _LoginState extends State<SignupPage> {
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.green, content: Text('Registered Successfully', style: WidgetSupport.boldTextStyle(color: Colors.black))));
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BottomNav()));
+
+        String id = randomAlphaNumeric(10);
+        Map<String, dynamic> addUserInfo = {
+          "Name": nameController.text,
+          "Email": mailController.text,
+          "Wallet": "0",
+          "Id": id,
+        };
+
+        await DatabaseMethods().addUserDetail(addUserInfo, id);
+
+        final pref = SharedPreferencesHelpers();
+        await pref.saveUserId(id);
+        await pref.saveUserName(nameController.text);
+        await pref.saveUserEmail(mailController.text);
+        await pref.saveUserWallet('0');
+
+        // await SharedPreferencesHelpers().saveUserId(id);
+        // await SharedPreferencesHelpers().saveUserName(nameController.text);
+        // await SharedPreferencesHelpers().saveUserEmail(mailController.text);
+        // await SharedPreferencesHelpers().saveUserWallet('0');
+
+        if (mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BottomNav()));
       } on FirebaseException catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.redAccent, content: Text(e.message ?? "An error has ocurred!", style: WidgetSupport.boldTextStyle(color: Colors.black))),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(backgroundColor: Colors.redAccent, content: Text(e.message ?? "An error has ocurred!", style: WidgetSupport.boldTextStyle(color: Colors.black))),
+          );
+        }
       }
     }
   }

@@ -1,10 +1,12 @@
-import 'dart:convert';
+// import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:food_delivery_getx/service/database.dart';
+import 'package:food_delivery_getx/service/shared_preferences.dart';
 import 'package:food_delivery_getx/widget/widget_support.dart';
-import 'package:flutter_paypal_payment/flutter_paypal_payment.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:developer';
+// import 'package:flutter_paypal_payment/flutter_paypal_payment.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'dart:developer';
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key});
@@ -15,6 +17,20 @@ class WalletPage extends StatefulWidget {
 
 class _WalletPageState extends State<WalletPage> {
   final List amounts = [100, 500, 1000, 2000];
+  TextEditingController amountController = TextEditingController();
+  String wallet = '0', id = '';
+
+  _getSharedPref() async {
+    wallet = await SharedPreferencesHelpers().getUserWallet() ?? '0';
+    id = await SharedPreferencesHelpers().getUserId() ?? '0';
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    _getSharedPref();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +60,7 @@ class _WalletPageState extends State<WalletPage> {
                     children: [
                       Text("Your Wallet", style: WidgetSupport.boldTextStyle(color: Colors.black26, fontSize: 13, fontWeight: FontWeight.bold)),
                       SizedBox(height: 5),
-                      Text("\$100", style: WidgetSupport.boldTextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                      Text("\$$wallet", style: WidgetSupport.boldTextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                     ],
                   )
                 ],
@@ -65,56 +81,67 @@ class _WalletPageState extends State<WalletPage> {
                   SizedBox(height: 60),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (BuildContext context) => PaypalCheckoutView(
-                          sandboxMode: true,
-                          clientId: dotenv.get('CLIENT_ID_PAYPAL'),
-                          secretKey: dotenv.get('CLIENT_SECRET_PAYPAL'),
-                          transactions: const [
-                            {
-                              "amount": {
-                                "total": '100',
-                                "currency": "USD",
-                                "details": {"subtotal": '100', "shipping": '0', "shipping_discount": 0}
-                              },
-                              "description": "The payment transaction description.",
-                              "item_list": {
-                                "items": [
-                                  {"name": "Apple", "quantity": 4, "price": '10', "currency": "USD"},
-                                  {"name": "Pineapple", "quantity": 5, "price": '12', "currency": "USD"}
-                                ],
-                              }
-                            }
-                          ],
-                          note: "Contact us for any questions on your order.",
-                          onSuccess: (Map params) async {
-                            log("onSuccess: ${jsonEncode(params)}");
-                            Navigator.pop(context);
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                content: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.check_circle, color: Colors.green),
-                                    SizedBox(width: 10),
-                                    Text("Payment Successful"),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                          onError: (error) {
-                            log("onError: ${jsonEncode(error)}");
-                            log("ERROR: ${error['data']['details'][0]['issue']}");
-                            Navigator.pop(context);
-                          },
-                          onCancel: () {
-                            log('cancelled:');
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ));
+                      _openEdit();
+
+                      // Navigator.of(context).push(MaterialPageRoute(
+                      //   builder: (BuildContext context) => PaypalCheckoutView(
+                      //     sandboxMode: true,
+                      //     clientId: dotenv.get('CLIENT_ID_PAYPAL'),
+                      //     secretKey: dotenv.get('CLIENT_SECRET_PAYPAL'),
+                      //     transactions: [
+                      //       {
+                      //         "amount": {
+                      //           "total": amount,
+                      //           "currency": "USD",
+                      //           "details": {"subtotal": amount, "shipping": '0', "shipping_discount": 0}
+                      //         },
+                      //         "description": "The payment transaction description.",
+                      //         "item_list": {
+                      //           "items": [
+                      //             {"name": "Apple", "quantity": 1, "price": amount, "currency": "USD"},
+                      //             // {"name": "Pineapple", "quantity": 5, "price": '12', "currency": "USD"}
+                      //           ],
+                      //         }
+                      //       }
+                      //     ],
+                      //     note: "Contact us for any questions on your order.",
+                      //     onSuccess: (Map params) async {
+                      //       log("onSuccess: ${jsonEncode(params)}");
+
+                      //       Navigator.pop(context);
+
+                      //       showDialog(
+                      //         context: context,
+                      //         builder: (context) => AlertDialog(
+                      //           content: Row(
+                      //             mainAxisAlignment: MainAxisAlignment.center,
+                      //             children: [
+                      //               Icon(Icons.check_circle, color: Colors.green),
+                      //               SizedBox(width: 10),
+                      //               Text("Payment Successful"),
+                      //             ],
+                      //           ),
+                      //         ),
+                      //       );
+
+                      //       final totalAmount = int.parse(wallet ?? "0") + int.parse(amount);
+                      //       await SharedPreferencesHelpers().saveUserWallet(totalAmount.toString());
+
+                      //       setState(() {
+                      //         wallet = totalAmount.toString();
+                      //       });
+                      //     },
+                      //     onError: (error) {
+                      //       log("onError: ${jsonEncode(error)}");
+                      //       log("ERROR: ${error['data']['details'][0]['issue']}");
+                      //       Navigator.pop(context);
+                      //     },
+                      //     onCancel: () {
+                      //       log('cancelled:');
+                      //       Navigator.pop(context);
+                      //     },
+                      //   ),
+                      // ));
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF008080), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                     child: Container(
@@ -134,10 +161,73 @@ class _WalletPageState extends State<WalletPage> {
   }
 
   _itemAmount(int amount) {
-    return Container(
-      padding: EdgeInsets.all(5),
-      decoration: BoxDecoration(border: Border.all(color: Color(0xFFE9E2E2)), borderRadius: BorderRadius.circular(5)),
+    return ElevatedButton(
+      onPressed: () async {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.check_circle, color: Colors.green),
+                SizedBox(width: 10),
+                Text("Payment Successful"),
+              ],
+            ),
+          ),
+        );
+
+        final totalAmount = int.parse(wallet) + amount;
+        await SharedPreferencesHelpers().saveUserWallet(totalAmount.toString());
+        await DatabaseMethods().updateUserWallet(id, totalAmount.toString());
+        wallet = totalAmount.toString();
+
+        setState(() {});
+      },
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+        padding: EdgeInsets.all(10),
+      ),
       child: Text("\$${amount.toString()}", style: WidgetSupport.boldTextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18)),
     );
   }
+
+  Future _openEdit() => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(Icons.cancel),
+                    ),
+                    SizedBox(width: 60),
+                    Center(child: Text('Add Money', style: WidgetSupport.boldTextStyle(color: Color(0xDD008080), fontWeight: FontWeight.bold)))
+                  ],
+                ),
+                SizedBox(height: 20),
+                Text('Amount'),
+                SizedBox(height: 10),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black38, width: 2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: TextField(
+                    controller: amountController,
+                    decoration: InputDecoration(border: InputBorder.none, hintText: 'Enter Amount'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
 }
